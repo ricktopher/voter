@@ -143,6 +143,45 @@ h1 {
   animation: fade .2s ease-out;
 }
 .recorded strong { color: var(--text); font-weight: 600; overflow-wrap: anywhere; }
+/* ---------- Decide: shortlist + chooser ---------- */
+.panel-head {
+  display: flex; align-items: center; justify-content: space-between; gap: 12px;
+  min-height: 32px; margin-bottom: 8px;
+}
+.panel-label {
+  font-size: 12px; font-weight: 600; letter-spacing: .06em; text-transform: uppercase;
+  color: var(--muted);
+}
+button.small { padding: 4px 10px; font-size: 13px; }
+.shortlist {
+  margin-bottom: 20px; padding: 12px 14px 14px;
+  border-radius: 12px;
+  background: var(--accent-soft);
+}
+.shortlist .panel-label { color: var(--accent); }
+.shortlist .list { margin-top: 0; }
+.shortlist .list li { border-color: transparent; }
+.shortlist .list li .actions { align-items: center; }
+.hint { margin: 0; font-size: 14px; color: var(--accent); }
+.list.choose li { padding: 0; }
+.list.choose li.selected { border-color: var(--accent); background: var(--accent-soft); }
+.option-toggle {
+  width: 100%;
+  display: flex; align-items: center; justify-content: space-between; gap: 12px;
+  padding: 12px 14px;
+  border: 0; border-radius: 12px; background: transparent;
+  text-align: left; font-weight: 500;
+}
+.option-toggle:hover { background: transparent; }
+.option-toggle .mark {
+  flex-shrink: 0;
+  width: 24px; height: 24px; border-radius: 50%;
+  display: grid; place-items: center;
+  border: 1.5px solid var(--border); color: var(--muted);
+  font-size: 14px; line-height: 1;
+}
+.selected .option-toggle .mark { background: var(--accent); border-color: var(--accent); color: var(--accent-ink); }
+
 .undo-last {
   max-width: 100%; flex: 0 1 auto;
   white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
@@ -310,6 +349,10 @@ table.matrix td {
 }
 table.matrix td.hi { color: var(--accent-ink); }
 table.matrix td.self { background: transparent; color: var(--border); }
+table.matrix td.nodata {
+  background: transparent; color: var(--muted); font-weight: 400;
+  box-shadow: inset 0 0 0 1px var(--border);
+}
 .scale { display: flex; align-items: center; gap: 8px; margin-top: 16px; font-size: 12px; color: var(--muted); }
 .scale .bar-grad {
   flex: 0 1 160px; height: 8px; border-radius: 999px;

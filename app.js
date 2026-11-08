@@ -95,7 +95,7 @@ $('add-form').addEventListener('submit', e => {
   const name = $('add-input').value.trim();
   if (!name) return;
   if (nameTaken(name)) return showAddError(`“${name}” is already an option.`);
-  store.options.push({ id: newId(), name });
+  store.options.push({ id: newId(), name, createdAt: Date.now() });
   save();
   $('add-input').value = '';
   showAddError('');
@@ -153,8 +153,10 @@ $('options-list').addEventListener('keydown', e => {
   if (e.key === 'Escape') { editingId = null; renderOptions(); }
 });
 
-// ---- Decide page: filter, pick, undo ----
-// Each pick is one raw decision — no duration attached.
+// ---- Decide page: shortlist, pick, undo ----
+// Each pick is one raw decision — no duration attached. It also records the
+// shortlist it was picked from (`candidates`), which feeds the Priorities matrix.
+let shortlist = [];       // option ids currently being chosen between
 let justPickedId = null;
 let recordedTimer = null;
 
@@ -179,18 +181,45 @@ function hideRecorded() {
 
 function renderDecide() {
   const hasOptions = store.options.length > 0;
-  const list = filteredOptions();
+  shortlist = shortlist.filter(id => store.options.some(o => o.id === id)); // drop deleted options
   $('decide-empty').hidden = hasOptions;
-  $('filter-input').closest('.row').hidden = !hasOptions;
-  $('decide-nomatch').hidden = !hasOptions || list.length > 0;
-  $('decide-nomatch').textContent = `No options match “${$('filter-input').value.trim()}”.`;
-  $('decide-list').innerHTML = list.map(o => `
-    <li data-id="${o.id}"${o.id === justPickedId ? ' class="just-picked"' : ''}>
+  $('decide-body').hidden = !hasOptions;
+
+  // Shortlist: the options actually on the table, each with a Pick button.
+  const chosen = shortlist.map(id => store.options.find(o => o.id === id));
+  $('shortlist-hint').hidden = chosen.length > 0;
+  $('clear-shortlist').hidden = chosen.length === 0;
+  $('shortlist-list').innerHTML = chosen.map(o => `
+    <li data-id="${o.id}">
       <span class="name">${esc(o.name)}</span>
-      <button class="primary" data-action="pick">Pick</button>
+      <span class="actions">
+        <button class="ghost small" data-action="unlist" aria-label="Remove ${esc(o.name)} from shortlist">✕</button>
+        <button class="primary" data-action="pick">Pick</button>
+      </span>
     </li>`).join('');
+
+  // All options: tap to add to / remove from the shortlist.
+  const list = filteredOptions();
+  $('decide-nomatch').hidden = list.length > 0;
+  $('decide-nomatch').textContent = `No options match “${$('filter-input').value.trim()}”.`;
+  $('decide-list').innerHTML = list.map(o => {
+    const on = shortlist.includes(o.id);
+    const cls = [on && 'selected', o.id === justPickedId && 'just-picked'].filter(Boolean).join(' ');
+    return `
+    <li data-id="${o.id}"${cls ? ` class="${cls}"` : ''}>
+      <button class="option-toggle" data-action="toggle" aria-pressed="${on}">
+        <span class="name">${esc(o.name)}</span>
+        <span class="mark">${on ? '✓' : '+'}</span>
+      </button>
+    </li>`;
+  }).join('');
   justPickedId = null;
   renderUndo();
+}
+
+function toggleShortlist(id) {
+  shortlist = shortlist.includes(id) ? shortlist.filter(x => x !== id) : [...shortlist, id];
+  renderDecide();
 }
 
 // "Undo last" always targets the most recent decision, whenever it was made.
@@ -208,9 +237,10 @@ function renderUndo() {
 }
 
 function pick(optionId) {
-  store.decisions.push({ optionId, at: new Date().toISOString() });
+  store.decisions.push({ optionId, at: new Date().toISOString(), candidates: [...shortlist] });
   save();
   justPickedId = optionId;
+  shortlist = [];
   $('filter-input').value = '';
   renderAll();
   showRecorded(store.options.find(o => o.id === optionId));
@@ -218,15 +248,31 @@ function pick(optionId) {
 
 $('filter-input').addEventListener('input', renderDecide);
 $('filter-input').addEventListener('keydown', e => {
-  // Enter picks the option when the filter narrows it down to exactly one.
+  // Enter toggles the option when the filter narrows it down to exactly one.
   if (e.key !== 'Enter') return;
   const list = filteredOptions();
-  if (list.length === 1) pick(list[0].id);
+  if (list.length !== 1) return;
+  toggleShortlist(list[0].id);
+  $('filter-input').value = '';
+  renderDecide();
 });
 
 $('decide-list').addEventListener('click', e => {
-  const btn = e.target.closest('button[data-action="pick"]');
-  if (btn) pick(btn.closest('li').dataset.id);
+  const btn = e.target.closest('button[data-action="toggle"]');
+  if (btn) toggleShortlist(btn.closest('li').dataset.id);
+});
+
+$('shortlist-list').addEventListener('click', e => {
+  const btn = e.target.closest('button[data-action]');
+  if (!btn) return;
+  const id = btn.closest('li').dataset.id;
+  if (btn.dataset.action === 'pick') pick(id);
+  if (btn.dataset.action === 'unlist') toggleShortlist(id);
+});
+
+$('clear-shortlist').addEventListener('click', () => {
+  shortlist = [];
+  renderDecide();
 });
 
 $('undo-last').addEventListener('click', () => {
@@ -323,8 +369,8 @@ function renderAll() {
   renderOptions();
   renderDecide();
   renderDay();
+  renderMatrix();
 }
-renderAll();
 
 // ---- Calendar (current month, Monday-first grid) ----
 // dotsByDay: { dayOfMonth: [colorIndex, ...] }   legend: [optionName, ...]
@@ -355,24 +401,64 @@ const now = new Date();
 renderCalendar(now.getFullYear(), now.getMonth());
 
 // ---- Priority matrix ----
-// opts: [optionName, ...]
-// wins[a][b] = share of times option a was picked over option b (0–1).
-// Reads as: "I would rather <column> than <row>" — cell = % of times column won.
-function renderMatrix(opts = [], wins = []) {
-  const table = document.getElementById('matrix-table');
-  if (opts.length < 2) { table.innerHTML = ''; return; }
+// Built only from real head-to-heads: a pick beats each OTHER option that was on
+// its shortlist (`candidates`) — nothing else. For a pair (a, b):
+//   wins[a][b] = times a beat b / (times a beat b + times b beat a)
+// Reads as: "I would rather <column> than <row>" — cell = share of times column won.
+// Decisions without a shortlist (made before shortlists existed, or picked from a
+// shortlist of one) still count on the other pages, but carry no comparison here.
+function pairwise() {
+  const opts = store.options;
+  const index = new Map(opts.map((o, i) => [o.id, i]));
+  const n = opts.length;
+  const beat = Array.from({ length: n }, () => Array(n).fill(0)); // beat[a][b]: a picked over b
+  for (const d of store.decisions) {
+    const a = index.get(d.optionId);
+    if (a === undefined || !Array.isArray(d.candidates)) continue;
+    for (const id of d.candidates) {
+      const b = index.get(id);
+      if (b !== undefined && b !== a) beat[a][b]++;
+    }
+  }
+  return { opts, picks: beat };
+}
+
+function renderMatrix() {
+  const table = $('matrix-table');
+  const { opts, picks } = pairwise();
+  const total = i => picks[i].reduce((s, x) => s + x, 0);
+  // Order options by overall preference: most picked first.
+  const order = opts.map((_, i) => i)
+    .sort((a, b) => timesPicked(opts[b].id) - timesPicked(opts[a].id) ||
+                    opts[a].name.localeCompare(opts[b].name, undefined, { sensitivity: 'base' }));
+
+  const hasData = opts.length >= 2 && order.some(i => total(i) > 0);
+  $('matrix-empty').hidden = hasData;
+  $('matrix-scale').hidden = !hasData;
+  $('matrix-empty').textContent = opts.length < 2
+    ? 'Add at least two options to compare them.'
+    : 'Nothing to compare yet. On the Decide page, shortlist two or more options and pick one.';
+  if (!hasData) { table.innerHTML = ''; return; }
+
   let html =
     `<tr><th></th><th class="axis axis-col" colspan="${opts.length}">I would rather…</th></tr>` +
     '<tr><th class="axis axis-row">than…</th>' +
-    opts.map(o => `<th class="colh">${esc(o)}</th>`).join('') + '</tr>';
-  opts.forEach((than, r) => {
-    html += `<tr><th class="rowh">${esc(than)}</th>` + opts.map((rather, c) => {
+    order.map(c => `<th class="colh">${esc(opts[c].name)}</th>`).join('') + '</tr>';
+  order.forEach(r => {
+    const than = opts[r].name;
+    html += `<tr><th class="rowh">${esc(than)}</th>` + order.map(c => {
       if (r === c) return '<td class="self">—</td>';
-      const v = wins[c][r];
+      const rather = opts[c].name;
+      const won = picks[c][r], lost = picks[r][c], n = won + lost;
+      if (!n) return `<td class="nodata" title="No decisions between ${esc(rather)} and ${esc(than)} yet">–</td>`;
+      const v = won / n;
       const pct = Math.round(v * 100);
-      return `<td class="${v > .5 ? 'hi' : ''}" style="--v:${v}" title="I would rather ${esc(rather)} than ${esc(than)}: ${pct}% of the time">${pct}%</td>`;
+      return `<td class="${v > .5 ? 'hi' : ''}" style="--v:${v}"
+        title="I would rather ${esc(rather)} than ${esc(than)}: ${won} of ${n} times (${pct}%)">${pct}%</td>`;
     }).join('') + '</tr>';
   });
   table.innerHTML = html;
 }
-renderMatrix();
+
+// ---- Initial render (last, so every function and constant above is defined) ----
+renderAll();

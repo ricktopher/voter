@@ -31,13 +31,30 @@
     <p class="sub">What do you choose to do?</p>
     <div class="card">
       <div class="recorded" id="recorded" role="status" hidden></div>
-      <div class="row">
-        <input type="search" id="filter-input" placeholder="Filter options…" aria-label="Filter options" autocomplete="off">
-        <button class="ghost undo-last" id="undo-last" type="button" hidden></button>
-      </div>
-      <ul class="list" id="decide-list"></ul>
       <p class="empty" id="decide-empty">No options yet. Add some on the <a href="#modify">Options</a> tab.</p>
-      <p class="empty" id="decide-nomatch" hidden></p>
+
+      <div id="decide-body">
+        <!-- Step 2 sits on top so the Pick buttons stay in reach -->
+        <div class="shortlist" id="shortlist">
+          <div class="panel-head">
+            <span class="panel-label">Choosing between</span>
+            <button class="ghost small" id="clear-shortlist" type="button" hidden>Clear</button>
+          </div>
+          <ul class="list" id="shortlist-list"></ul>
+          <p class="hint" id="shortlist-hint">Tap the options below that are realistic right now, then pick one.</p>
+        </div>
+
+        <!-- Step 1: build the shortlist -->
+        <div class="panel-head">
+          <span class="panel-label">All options</span>
+          <button class="ghost small undo-last" id="undo-last" type="button" hidden></button>
+        </div>
+        <div class="row">
+          <input type="search" id="filter-input" placeholder="Filter options…" aria-label="Filter options" autocomplete="off">
+        </div>
+        <ul class="list choose" id="decide-list"></ul>
+        <p class="empty" id="decide-nomatch" hidden></p>
+      </div>
     </div>
 
     <div class="card day-card">
@@ -81,8 +98,8 @@
       <div class="scroll-x">
         <table class="matrix" id="matrix-table"></table>
       </div>
-      <p class="empty">Nothing to compare yet. Make a few decisions first.</p>
-      <div class="scale"><span>Rarely</span><span class="bar-grad"></span><span>Usually</span></div>
+      <p class="empty" id="matrix-empty">Nothing to compare yet. Make a few decisions first.</p>
+      <div class="scale" id="matrix-scale"><span>Rarely</span><span class="bar-grad"></span><span>Usually</span></div>
     </div>
   </section>
 
