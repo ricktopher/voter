@@ -121,6 +121,15 @@
 
 </main>
 
-<script src="app.js"></script>
+<!-- Plain scripts sharing one global scope; order matters (helpers first, main last). -->
+<script src="js/util.js"></script>
+<script src="js/store.js"></script>
+<script src="js/router.js"></script>
+<script src="js/options.js"></script>
+<script src="js/decide.js"></script>
+<script src="js/timeline.js"></script>
+<script src="js/calendar.js"></script>
+<script src="js/priorities.js"></script>
+<script src="js/main.js"></script>
 </body>
 </html>
