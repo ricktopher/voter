@@ -65,6 +65,7 @@ header {
 .logo {
   display: flex; align-items: center; gap: 8px;
   font-family: var(--serif); font-weight: 600; font-size: 22px; letter-spacing: -0.02em;
+  color: inherit; text-decoration: none;
 }
 .logo-mark {
   width: 22px; height: 22px; border-radius: 7px;
@@ -112,6 +113,18 @@ h1 {
   margin: 16px 0 0; padding: 3px 10px;
   border: 1px dashed var(--border); border-radius: 999px;
 }
+
+.empty {
+  margin: 16px 0 0; padding: 28px 16px;
+  text-align: center; color: var(--muted);
+  border: 1.5px dashed var(--border); border-radius: 12px;
+}
+.empty a { color: var(--accent); }
+
+.form-error { margin: 8px 0 0; font-size: 13px; color: var(--danger); }
+.list li.editing { border-color: var(--accent); background: var(--surface); }
+.list li .edit-input { flex: 1 1 160px; }
+.list .confirm { font-size: 13px; color: var(--danger); align-self: center; padding: 0 4px; }
 
 /* ---------- Controls ---------- */
 button, select, input[type=text] {
@@ -197,6 +210,13 @@ table.matrix { border-collapse: separate; border-spacing: 4px; font-size: 13px; 
 table.matrix th, table.matrix td { padding: 10px; text-align: center; min-width: 64px; }
 table.matrix th { font-weight: 500; color: var(--muted); white-space: nowrap; }
 table.matrix th.rowh { text-align: right; color: var(--text); }
+table.matrix th.colh { color: var(--text); vertical-align: bottom; }
+table.matrix th.axis {
+  font-family: var(--serif); font-style: italic; font-weight: 500;
+  font-size: 14px; color: var(--accent);
+}
+table.matrix th.axis-col { padding-bottom: 0; border-bottom: 1.5px solid var(--accent-soft); }
+table.matrix th.axis-row { text-align: right; vertical-align: bottom; }
 table.matrix td {
   border-radius: 8px;
   font-weight: 600; font-variant-numeric: tabular-nums;

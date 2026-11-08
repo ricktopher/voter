@@ -15,84 +15,76 @@
   <div class="bar">
     <div class="logo"><span class="logo-mark">✓</span>voter</div>
     <nav>
-      <a href="#calendar">Calendar</a>
       <a href="#decide">Decide</a>
       <a href="#modify">Options</a>
       <a href="#matrix">Priorities</a>
+      <a href="#calendar">Calendar</a>
     </nav>
   </div>
 </header>
 
 <main>
 
-  <!-- 1. Calendar page -->
-  <section id="calendar">
-    <h1>Calendar</h1>
-    <p class="sub">Where your decisions landed over time.</p>
-    <div class="card">
-      <div class="cal-head">
-        <button class="ghost icon" aria-label="Previous month">‹</button>
-        <strong>November 2026</strong>
-        <button class="ghost icon" aria-label="Next month">›</button>
-      </div>
-      <div class="calendar" id="cal-grid"></div>
-      <div class="legend" id="cal-legend"></div>
-      <p class="placeholder">Placeholder: dots are fake sample data.</p>
-    </div>
-  </section>
-
-  <!-- 2. Decision page -->
-  <section id="decide" hidden>
+  <!-- 1. Decision page -->
+  <section id="decide">
     <h1>Decide</h1>
     <p class="sub">What will you spend the next hour on?</p>
     <div class="card">
       <div class="row">
         <input type="text" placeholder="Filter options…">
       </div>
-      <ul class="list">
-        <li><span class="name">Deep work on project</span><button class="primary">Pick</button></li>
-        <li><span class="name">Exercise</span><button class="primary">Pick</button></li>
-        <li><span class="name">Call a friend</span><button class="primary">Pick</button></li>
-        <li><span class="name">Read</span><button class="primary">Pick</button></li>
-      </ul>
+      <ul class="list" id="decide-list"></ul>
+      <p class="empty" id="decide-empty">No options yet. Add some on the <a href="#modify">Options</a> tab.</p>
       <p class="placeholder">Placeholder: filtering and picking not wired up yet.</p>
     </div>
   </section>
 
-  <!-- 3. Modify decision page -->
+  <!-- 2. Modify decision page -->
   <section id="modify" hidden>
     <h1>Options</h1>
     <p class="sub">Add, edit, or remove the options you choose between.</p>
     <div class="card">
-      <div class="row">
-        <input type="text" placeholder="New option…">
-        <button class="primary">Add</button>
-        <select aria-label="Sort by">
-          <option>Sort: A–Z</option>
-          <option>Sort: Frequency ↑</option>
-          <option>Sort: Frequency ↓</option>
+      <form class="row" id="add-form" autocomplete="off">
+        <input type="text" id="add-input" placeholder="New option…" maxlength="80" aria-label="New option">
+        <button class="primary" type="submit">Add</button>
+        <select id="sort-select" aria-label="Sort by">
+          <option value="alpha">Sort: A–Z</option>
+          <option value="freq-asc">Sort: Frequency ↑</option>
+          <option value="freq-desc">Sort: Frequency ↓</option>
         </select>
-      </div>
-      <ul class="list">
-        <li><span class="name">Call a friend</span><span class="row"><span class="count">3×</span><span class="actions"><button class="ghost">Edit</button><button class="ghost danger">Delete</button></span></span></li>
-        <li><span class="name">Deep work on project</span><span class="row"><span class="count">12×</span><span class="actions"><button class="ghost">Edit</button><button class="ghost danger">Delete</button></span></span></li>
-        <li><span class="name">Exercise</span><span class="row"><span class="count">7×</span><span class="actions"><button class="ghost">Edit</button><button class="ghost danger">Delete</button></span></span></li>
-        <li><span class="name">Read</span><span class="row"><span class="count">5×</span><span class="actions"><button class="ghost">Edit</button><button class="ghost danger">Delete</button></span></span></li>
-      </ul>
-      <p class="placeholder">Placeholder: buttons not wired up yet.</p>
+      </form>
+      <p class="form-error" id="add-error" hidden></p>
+      <ul class="list" id="options-list"></ul>
+      <p class="empty" id="options-empty">No options yet. Add your first one above.</p>
     </div>
   </section>
 
-  <!-- 4. Priority matrix -->
+  <!-- 3. Priority matrix -->
   <section id="matrix" hidden>
     <h1>Priorities</h1>
-    <p class="sub">How often the row option was chosen over the column option.</p>
+    <p class="sub">Read each square as a sentence: “I would rather <em>column</em> than <em>row</em>.”</p>
     <div class="card">
       <div class="scroll-x">
         <table class="matrix" id="matrix-table"></table>
       </div>
+      <p class="empty">Nothing to compare yet. Make a few decisions first.</p>
       <div class="scale"><span>Rarely</span><span class="bar-grad"></span><span>Usually</span></div>
-      <p class="placeholder">Placeholder: values are fake sample data.</p>
+    </div>
+  </section>
+
+  <!-- 4. Calendar page -->
+  <section id="calendar" hidden>
+    <h1>Calendar</h1>
+    <p class="sub">Where your decisions landed over time.</p>
+    <div class="card">
+      <div class="cal-head">
+        <button class="ghost icon" aria-label="Previous month">‹</button>
+        <strong id="cal-title"></strong>
+        <button class="ghost icon" aria-label="Next month">›</button>
+      </div>
+      <div class="calendar" id="cal-grid"></div>
+      <div class="legend" id="cal-legend"></div>
+      <p class="empty">No decisions recorded yet.</p>
     </div>
   </section>
 
