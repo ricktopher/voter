@@ -109,13 +109,36 @@
     <p class="sub">Where your decisions landed over time.</p>
     <div class="card">
       <div class="cal-head">
-        <button class="ghost icon" aria-label="Previous month">‹</button>
-        <strong id="cal-title"></strong>
-        <button class="ghost icon" aria-label="Next month">›</button>
+        <button class="ghost icon" id="cal-prev" type="button" aria-label="Previous month">‹</button>
+        <div class="cal-title-wrap">
+          <strong id="cal-title"></strong>
+          <span class="day-count" id="cal-count"></span>
+        </div>
+        <button class="ghost icon" id="cal-next" type="button" aria-label="Next month">›</button>
       </div>
       <div class="calendar" id="cal-grid"></div>
       <div class="legend" id="cal-legend"></div>
-      <p class="empty">No decisions recorded yet.</p>
+      <p class="empty" id="cal-empty" hidden></p>
+    </div>
+
+    <div class="card cal-detail" id="cal-detail" hidden>
+      <div class="day-head">
+        <div>
+          <h2 id="cal-detail-title"></h2>
+          <span class="day-count" id="cal-detail-count"></span>
+        </div>
+        <div class="seg" id="cal-view" role="group" aria-label="Day view">
+          <button type="button" data-view="list">List</button>
+          <button type="button" data-view="timeline">Timeline</button>
+        </div>
+      </div>
+      <ul class="cal-entries" id="cal-entries"></ul>
+      <div id="cal-timeline-wrap" hidden>
+        <div class="scroll-x">
+          <div class="timeline" id="cal-timeline" aria-label="Decisions on this day"></div>
+        </div>
+        <p class="tl-detail" id="cal-tl-detail"></p>
+      </div>
     </div>
   </section>
 

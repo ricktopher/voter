@@ -9,12 +9,12 @@
  * calling that page's own render function is enough.
  */
 function renderAll() {
-  renderOptions();  // options.js
-  renderDecide();   // decide.js
-  renderDay();      // timeline.js
-  renderMatrix();   // priorities.js
+  renderOptions();   // options.js
+  renderDecide();    // decide.js
+  renderDay();       // timeline.js
+  renderMatrix();    // priorities.js
+  renderCalendar();  // calendar.js
 }
 
 // First render, now that every file has loaded.
 renderAll();
-renderCalendar(new Date().getFullYear(), new Date().getMonth()); // no data yet, see calendar.js

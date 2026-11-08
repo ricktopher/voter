@@ -20,6 +20,7 @@
  *                   picked one). Used by the Priorities matrix. Missing on old decisions.
  *
  *   store.sort      — the chosen sort on the Options page: 'alpha' | 'freq-asc' | 'freq-desc'
+ *   store.calView   — how the Calendar shows a selected day: 'list' | 'timeline'
  *
  * WORKFLOW FOR CHANGING DATA
  *   1. modify `store` directly   2. call save()   3. call renderAll() (or a single render fn)
@@ -36,9 +37,9 @@ const STORE_KEY = 'voter:v1';
 function load() {
   try {
     const data = JSON.parse(localStorage.getItem(STORE_KEY));
-    if (data && Array.isArray(data.options)) return { decisions: [], sort: 'alpha', ...data };
+    if (data && Array.isArray(data.options)) return { decisions: [], sort: 'alpha', calView: 'list', ...data };
   } catch {}
-  return { options: [], decisions: [], sort: 'alpha' };
+  return { options: [], decisions: [], sort: 'alpha', calView: 'list' };
 }
 
 /** The single source of truth for the whole app. */

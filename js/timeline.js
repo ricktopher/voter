@@ -27,19 +27,25 @@ function todaysDecisions() {
 /** How far through the day a time is, from 0 (midnight) to 1 (next midnight). */
 const dayFrac = d => (d.getHours() * 3600 + d.getMinutes() * 60 + d.getSeconds()) / 86400;
 
-/** Rebuild the whole Today card. */
-function renderDay() {
-  const today = todaysDecisions();
-  const now = new Date();
-  $('day-count').textContent =
-    `${today.length} decision${today.length === 1 ? '' : 's'} · ${now.toLocaleDateString(undefined, { weekday: 'long', day: 'numeric', month: 'short' })}`;
-
+/**
+ * Draw a lollipop timeline for one day. Shared by the Today card and the Calendar's day view.
+ *
+ * @param {HTMLElement} el      the .timeline element to fill
+ * @param {Array} decisions     that day's decisions, oldest first, each with .date and .option
+ *                              (as returned by todaysDecisions / decisionsInMonth)
+ * @param {Object} opts
+ * @param {Date|null} opts.now  draw the "now" marker and "already passed" tint at this time
+ *                              (pass null for days other than today)
+ * @param {string|null} opts.selectedAt  `at` of the tapped lollipop, drawn enlarged
+ * @returns the selected decision (or undefined), so the caller can show its details
+ */
+function drawTimeline(el, decisions, { now = null, selectedAt = null } = {}) {
   // Choose a height level for each lollipop so close ones don't overlap.
   // Going left to right, each lollipop takes the lowest level whose previous
   // lollipop is at least MIN_GAP away; if none is free, it starts a new level (max 5).
   const MIN_GAP = 0.025; // 2.5% of a day ≈ 36 minutes
   const lastAtLevel = [];  // lastAtLevel[level] = x position of the latest lollipop on that level
-  const placed = today.map(d => {
+  const placed = decisions.map(d => {
     const x = dayFrac(d.date);
     let level = lastAtLevel.findIndex(prev => x - prev >= MIN_GAP);
     if (level === -1) level = lastAtLevel.length;
@@ -48,30 +54,41 @@ function renderDay() {
     return { ...d, x, level };
   });
 
-  // Base line, the "already passed" tint, hour labels (every 3h; the in-between
-  // ones are marked "minor" and hidden on phones by CSS), and the "now" marker.
+  // Base line and hour labels (every 3h; the in-between ones are marked "minor"
+  // and hidden on phones by CSS). For today, also the "already passed" tint and "now" marker.
   let html = '<div class="axis"></div>';
-  html += `<div class="past" style="width:${dayFrac(now) * 100}%"></div>`;
+  if (now) html += `<div class="past" style="width:${dayFrac(now) * 100}%"></div>`;
   for (let h = 0; h <= 24; h += 3) {
     html += `<div class="tick${h % 6 ? ' minor' : ''}" style="left:${h / 24 * 100}%">${String(h).padStart(2, '0')}:00</div>`;
   }
-  html += `<div class="now" style="left:${dayFrac(now) * 100}%"><span>now</span></div>`;
+  if (now) html += `<div class="now" style="left:${dayFrac(now) * 100}%"><span>now</span></div>`;
 
   // The lollipops. Each is a <button> so it can be tapped/focused; the --level CSS
   // variable sets its stick height. `title` gives the hover tooltip on desktop.
   html += placed.map(d => `
-    <button class="pop ${colorOf(d.optionId)}${d.at === selectedPopAt ? ' selected' : ''}"
+    <button class="pop ${colorOf(d.optionId)}${d.at === selectedAt ? ' selected' : ''}"
             style="left:${d.x * 100}%; --level:${d.level}"
             data-at="${d.at}"
             title="${fmtTime(d.date)} · ${esc(d.option.name)}"
             aria-label="${fmtTime(d.date)}: ${esc(d.option.name)}">
       <span class="head"></span><span class="stick"></span>
     </button>`).join('');
-  $('timeline').innerHTML = html;
+  el.innerHTML = html;
+
+  return placed.find(d => d.at === selectedAt);
+}
+
+/** Rebuild the whole Today card. */
+function renderDay() {
+  const today = todaysDecisions();
+  const now = new Date();
+  $('day-count').textContent =
+    `${today.length} decision${today.length === 1 ? '' : 's'} · ${now.toLocaleDateString(undefined, { weekday: 'long', day: 'numeric', month: 'short' })}`;
+
+  const sel = drawTimeline($('timeline'), today, { now, selectedAt: selectedPopAt });
 
   // Line under the timeline: details of the tapped lollipop, or a hint.
   // (Tapping is needed on phones, which have no hover tooltips.)
-  const sel = placed.find(d => d.at === selectedPopAt);
   $('tl-detail').innerHTML = sel
     ? `<strong>${fmtTime(sel.date)}</strong> · ${esc(sel.option.name)}`
     : today.length ? 'Tap a lollipop to see what you picked.' : 'No decisions yet today.';

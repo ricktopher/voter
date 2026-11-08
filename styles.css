@@ -287,20 +287,55 @@ input::placeholder { color: var(--muted); }
   font-size: 11px; font-weight: 600; letter-spacing: .06em; text-transform: uppercase;
   color: var(--muted); text-align: center; padding-bottom: 6px;
 }
+.cal-title-wrap { display: flex; flex-direction: column; align-items: center; text-align: center; }
 .calendar .day {
   aspect-ratio: 1;
-  border-radius: 10px;
+  min-width: 0; width: 100%;
+  display: flex; flex-direction: column; align-items: flex-start; justify-content: flex-start;
+  border: 0; border-radius: 10px;
   background: var(--surface-2);
   padding: 6px 8px;
-  font-size: 13px; font-weight: 500;
+  font-size: 13px; font-weight: 500; text-align: left;
   color: var(--muted);
   position: relative;
-  transition: transform .15s;
+  transition: transform .15s, box-shadow .15s;
 }
-.calendar .day:hover { transform: translateY(-1px); }
-.calendar .day.today { background: var(--accent-soft); color: var(--accent); box-shadow: inset 0 0 0 1.5px var(--accent); }
-.calendar .day .dots { position: absolute; bottom: 7px; left: 8px; right: 8px; display: flex; gap: 3px; flex-wrap: wrap; }
+.calendar .day:hover { transform: translateY(-1px); background: var(--surface-2); }
+.calendar .day.has { color: var(--text); }
+.calendar .day.today { background: var(--accent-soft); color: var(--accent); }
+.calendar .day.selected { box-shadow: inset 0 0 0 2px var(--accent); }
+.calendar .day .dots { position: absolute; bottom: 7px; left: 8px; right: 8px; display: flex; gap: 3px; flex-wrap: wrap; align-items: center; }
 .calendar .day .dot { width: 7px; height: 7px; border-radius: 50%; }
+.calendar .day .more { font-size: 10px; line-height: 1; color: var(--muted); font-weight: 600; }
+
+/* Selected day's decisions */
+.cal-detail { margin-top: 16px; }
+.cal-detail .day-head { align-items: center; flex-wrap: wrap; }
+.cal-detail .day-head h2 { margin-bottom: 2px; }
+#cal-timeline-wrap { margin-top: 8px; }
+
+/* Segmented control (List | Timeline) */
+.seg {
+  display: inline-flex; gap: 2px; padding: 3px;
+  background: var(--surface-2); border-radius: 999px;
+}
+.seg button {
+  padding: 4px 12px; font-size: 13px;
+  border: 0; border-radius: 999px; background: transparent; color: var(--muted);
+}
+.seg button:hover { background: transparent; color: var(--text); }
+.seg button[aria-pressed="true"] { background: var(--surface); color: var(--text); box-shadow: var(--shadow); }
+.cal-entries { list-style: none; margin: 4px 0 0; padding: 0; }
+.cal-entries li {
+  display: flex; align-items: center; gap: 10px;
+  padding: 8px 0; border-bottom: 1px solid var(--border);
+}
+.cal-entries li:last-child { border-bottom: 0; }
+.cal-entries time { width: 3.5em; flex-shrink: 0; color: var(--muted); font-size: 13px; font-variant-numeric: tabular-nums; }
+.cal-entries .dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+.cal-entries .name { overflow-wrap: anywhere; }
+.cal-entries .vs { margin-left: auto; color: var(--muted); font-size: 12px; text-align: right; }
+.cal-entries .none { color: var(--muted); }
 .dot.c1 { background: var(--c1); } .dot.c2 { background: var(--c2); }
 .dot.c3 { background: var(--c3); } .dot.c4 { background: var(--c4); }
 .dot.c5 { background: var(--c5); } .dot.c6 { background: var(--c6); }
