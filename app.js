@@ -165,12 +165,10 @@ function filteredOptions() {
     .sort((a, b) => a.name.localeCompare(b.name, undefined, { sensitivity: 'base' }));
 }
 
-// Brief "Recorded: X · Undo" confirmation after each pick.
+// Brief "Recorded: X" confirmation after each pick.
 function showRecorded(option) {
   clearTimeout(recordedTimer);
-  $('recorded').innerHTML =
-    `<span>Recorded: <strong>${esc(option.name)}</strong></span>
-     <button class="ghost" id="undo-pick">Undo</button>`;
+  $('recorded').innerHTML = `<span>Recorded: <strong>${esc(option.name)}</strong></span>`;
   $('recorded').hidden = false;
   recordedTimer = setTimeout(hideRecorded, 6000);
 }
@@ -192,6 +190,21 @@ function renderDecide() {
       <button class="primary" data-action="pick">Pick</button>
     </li>`).join('');
   justPickedId = null;
+  renderUndo();
+}
+
+// "Undo last" always targets the most recent decision, whenever it was made.
+function renderUndo() {
+  const last = store.decisions[store.decisions.length - 1];
+  const option = last && store.options.find(o => o.id === last.optionId);
+  $('undo-last').hidden = !option;
+  if (!option) return;
+  const date = new Date(last.at);
+  const when = date.toDateString() === new Date().toDateString()
+    ? fmtTime(date)
+    : date.toLocaleDateString(undefined, { day: 'numeric', month: 'short' }) + ' ' + fmtTime(date);
+  $('undo-last').innerHTML = `↶ Undo <em>${esc(option.name)}</em>`;
+  $('undo-last').title = `Remove your last decision: ${option.name} at ${when}`;
 }
 
 function pick(optionId) {
@@ -216,14 +229,14 @@ $('decide-list').addEventListener('click', e => {
   if (btn) pick(btn.closest('li').dataset.id);
 });
 
-$('recorded').addEventListener('click', e => {
-  if (e.target.id !== 'undo-pick') return;
+$('undo-last').addEventListener('click', () => {
+  if (!store.decisions.length) return;
   store.decisions.pop();
   save();
   hideRecorded();
+  selectedPopAt = null;
   renderAll();
 });
-// Leaving the page dismisses the note, so Undo can't act on stale state.
 addEventListener('hashchange', hideRecorded);
 
 // ---- Decide page: today's timeline (lollipop per decision) ----

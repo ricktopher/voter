@@ -143,7 +143,11 @@ h1 {
   animation: fade .2s ease-out;
 }
 .recorded strong { color: var(--text); font-weight: 600; overflow-wrap: anywhere; }
-.recorded button { margin-left: auto; padding: 5px 12px; font-size: 13px; flex-shrink: 0; }
+.undo-last {
+  max-width: 100%; flex: 0 1 auto;
+  white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.undo-last em { font-style: normal; color: var(--text); }
 /* ---------- Today timeline ---------- */
 .day-card { margin-top: 16px; }
 .day-head { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; margin-bottom: 8px; }
