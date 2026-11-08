@@ -226,9 +226,90 @@ $('recorded').addEventListener('click', e => {
 // Leaving the page dismisses the note, so Undo can't act on stale state.
 addEventListener('hashchange', hideRecorded);
 
+// ---- Decide page: today's timeline (lollipop per decision) ----
+const PALETTE_SIZE = 8;
+// Stable colour per option, based on the order options were created.
+const colorOf = optionId =>
+  `c${store.options.findIndex(o => o.id === optionId) % PALETTE_SIZE + 1}`;
+const fmtTime = d => d.toLocaleTimeString(undefined, { hour: '2-digit', minute: '2-digit' });
+let selectedPopAt = null;
+
+function todaysDecisions() {
+  const start = new Date(); start.setHours(0, 0, 0, 0);
+  const end = new Date(start); end.setDate(end.getDate() + 1);
+  return store.decisions
+    .map(d => ({ ...d, date: new Date(d.at), option: store.options.find(o => o.id === d.optionId) }))
+    .filter(d => d.option && d.date >= start && d.date < end)
+    .sort((a, b) => a.date - b.date);
+}
+
+// Fraction of the day (0–1) for a given time.
+const dayFrac = d => (d.getHours() * 3600 + d.getMinutes() * 60 + d.getSeconds()) / 86400;
+
+function renderDay() {
+  const today = todaysDecisions();
+  const now = new Date();
+  $('day-count').textContent =
+    `${today.length} decision${today.length === 1 ? '' : 's'} · ${now.toLocaleDateString(undefined, { weekday: 'long', day: 'numeric', month: 'short' })}`;
+
+  // Stack lollipops that sit close together: each takes the lowest level free nearby.
+  const MIN_GAP = 0.025; // ~36 minutes
+  const lastAtLevel = [];
+  const placed = today.map(d => {
+    const x = dayFrac(d.date);
+    let level = lastAtLevel.findIndex(prev => x - prev >= MIN_GAP);
+    if (level === -1) level = lastAtLevel.length;
+    level = Math.min(level, 4);
+    lastAtLevel[level] = x;
+    return { ...d, x, level };
+  });
+
+  let html = '<div class="axis"></div>';
+  html += `<div class="past" style="width:${dayFrac(now) * 100}%"></div>`;
+  for (let h = 0; h <= 24; h += 3) {
+    html += `<div class="tick${h % 6 ? ' minor' : ''}" style="left:${h / 24 * 100}%">${String(h).padStart(2, '0')}:00</div>`;
+  }
+  html += `<div class="now" style="left:${dayFrac(now) * 100}%"><span>now</span></div>`;
+  html += placed.map(d => `
+    <button class="pop ${colorOf(d.optionId)}${d.at === selectedPopAt ? ' selected' : ''}"
+            style="left:${d.x * 100}%; --level:${d.level}"
+            data-at="${d.at}"
+            title="${fmtTime(d.date)} · ${esc(d.option.name)}"
+            aria-label="${fmtTime(d.date)}: ${esc(d.option.name)}">
+      <span class="head"></span><span class="stick"></span>
+    </button>`).join('');
+  $('timeline').innerHTML = html;
+
+  const sel = placed.find(d => d.at === selectedPopAt);
+  $('tl-detail').innerHTML = sel
+    ? `<strong>${fmtTime(sel.date)}</strong> · ${esc(sel.option.name)}`
+    : today.length ? 'Tap a lollipop to see what you picked.' : 'No decisions yet today.';
+
+  // Legend: options picked today, with counts, most picked first.
+  const counts = {};
+  today.forEach(d => counts[d.optionId] = (counts[d.optionId] || 0) + 1);
+  $('day-legend').innerHTML = Object.entries(counts)
+    .sort((a, b) => b[1] - a[1])
+    .map(([id, n]) => {
+      const o = store.options.find(o => o.id === id);
+      return `<span><span class="dot ${colorOf(id)}"></span>${esc(o.name)} · ${n}</span>`;
+    }).join('');
+}
+
+$('timeline').addEventListener('click', e => {
+  const pop = e.target.closest('.pop');
+  if (!pop) return;
+  selectedPopAt = selectedPopAt === pop.dataset.at ? null : pop.dataset.at;
+  renderDay();
+});
+
+// Keep the "now" marker moving and roll over at midnight.
+setInterval(renderDay, 60 * 1000);
+
 function renderAll() {
   renderOptions();
   renderDecide();
+  renderDay();
 }
 renderAll();
 

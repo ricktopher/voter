@@ -13,6 +13,10 @@
   --c2: #c9813a;
   --c3: #4a6fa5;
   --c4: #a5486a;
+  --c5: #7a5fa8;
+  --c6: #8a8a2e;
+  --c7: #3a8fa3;
+  --c8: #b5603e;
   --radius: 14px;
   --shadow: 0 1px 2px rgba(40, 30, 10, .04), 0 8px 24px -12px rgba(40, 30, 10, .12);
   --serif: "Fraunces", Georgia, "Times New Roman", serif;
@@ -35,6 +39,10 @@
     --c2: #e0a462;
     --c3: #84a6d8;
     --c4: #d48aa6;
+    --c5: #ad97d8;
+    --c6: #c4c46a;
+    --c7: #74c2d4;
+    --c8: #e3957a;
     --shadow: 0 1px 2px rgba(0, 0, 0, .3), 0 8px 24px -12px rgba(0, 0, 0, .5);
     color-scheme: dark;
   }
@@ -136,6 +144,66 @@ h1 {
 }
 .recorded strong { color: var(--text); font-weight: 600; overflow-wrap: anywhere; }
 .recorded button { margin-left: auto; padding: 5px 12px; font-size: 13px; flex-shrink: 0; }
+/* ---------- Today timeline ---------- */
+.day-card { margin-top: 16px; }
+.day-head { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; margin-bottom: 8px; }
+.day-head h2 { margin: 0; font-family: var(--serif); font-weight: 500; font-size: 20px; }
+.day-count { color: var(--muted); font-size: 13px; }
+.timeline {
+  position: relative;
+  height: 132px;
+  min-width: 260px;
+  margin: 0 12px;           /* room for the first/last lollipop heads */
+}
+@media (max-width: 600px) { .timeline .tick.minor { display: none; } }
+.timeline .axis {
+  position: absolute; left: 0; right: 0; bottom: 24px;
+  height: 2px; border-radius: 2px; background: var(--border);
+}
+.timeline .past {
+  position: absolute; left: 0; bottom: 24px;
+  height: 2px; border-radius: 2px; background: color-mix(in srgb, var(--accent) 35%, var(--border));
+}
+.timeline .tick {
+  position: absolute; bottom: 0; transform: translateX(-50%);
+  font-size: 11px; color: var(--muted); font-variant-numeric: tabular-nums;
+}
+.timeline .tick::before {
+  content: ""; position: absolute; left: 50%; bottom: 20px;
+  width: 1px; height: 6px; background: var(--border);
+}
+.timeline .now {
+  position: absolute; bottom: 20px; top: 0; width: 0;
+  border-left: 1.5px dashed var(--accent);
+}
+.timeline .now span {
+  position: absolute; top: -2px; left: 4px;
+  font-size: 10px; font-weight: 600; letter-spacing: .06em; text-transform: uppercase; color: var(--accent);
+}
+.pop {
+  position: absolute; bottom: 25px;
+  width: 16px; margin-left: -8px;
+  height: calc(28px + var(--level, 0) * 18px);
+  padding: 0; border: 0; background: none; cursor: pointer;
+  display: flex; flex-direction: column; align-items: center;
+}
+.pop:hover { background: none; }
+.pop .head {
+  width: 12px; height: 12px; border-radius: 50%; flex-shrink: 0;
+  box-shadow: 0 0 0 2px var(--surface);
+  transition: transform .15s;
+}
+.pop .stick { width: 2px; flex: 1; background: currentColor; opacity: .55; }
+.pop:hover .head, .pop:focus-visible .head, .pop.selected .head { transform: scale(1.35); }
+.pop:focus-visible { outline: none; box-shadow: none; }
+.pop.c1 { color: var(--c1); } .pop.c2 { color: var(--c2); } .pop.c3 { color: var(--c3); } .pop.c4 { color: var(--c4); }
+.pop.c5 { color: var(--c5); } .pop.c6 { color: var(--c6); } .pop.c7 { color: var(--c7); } .pop.c8 { color: var(--c8); }
+.pop .head { background: currentColor; }
+.tl-detail { min-height: 1.5em; margin: 8px 0 0; font-size: 13px; color: var(--muted); }
+.tl-detail strong { color: var(--text); font-weight: 600; }
+.day-card .legend { margin-top: 4px; }
+.day-card .empty { margin-top: 8px; padding: 16px; }
+
 .list li.just-picked { animation: picked .6s ease-out; }
 @keyframes picked { from { background: var(--accent-soft); border-color: var(--accent); } }
 
@@ -192,6 +260,8 @@ input::placeholder { color: var(--muted); }
 .calendar .day .dot { width: 7px; height: 7px; border-radius: 50%; }
 .dot.c1 { background: var(--c1); } .dot.c2 { background: var(--c2); }
 .dot.c3 { background: var(--c3); } .dot.c4 { background: var(--c4); }
+.dot.c5 { background: var(--c5); } .dot.c6 { background: var(--c6); }
+.dot.c7 { background: var(--c7); } .dot.c8 { background: var(--c8); }
 .legend { display: flex; flex-wrap: wrap; gap: 6px 16px; margin-top: 16px; font-size: 13px; color: var(--muted); }
 .legend span { display: inline-flex; align-items: center; gap: 6px; }
 .legend .dot { width: 8px; height: 8px; border-radius: 50%; }
