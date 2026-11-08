@@ -153,14 +153,78 @@ $('options-list').addEventListener('keydown', e => {
   if (e.key === 'Escape') { editingId = null; renderOptions(); }
 });
 
-// ---- Decide page (list only; filtering and Pick come next) ----
-function renderDecide() {
-  const list = [...store.options].sort((a, b) =>
-    a.name.localeCompare(b.name, undefined, { sensitivity: 'base' }));
-  $('decide-empty').hidden = list.length > 0;
-  $('decide-list').innerHTML = list.map(o => `
-    <li data-id="${o.id}"><span class="name">${esc(o.name)}</span><button class="primary">Pick</button></li>`).join('');
+// ---- Decide page: filter, pick, undo ----
+// Each pick is one raw decision — no duration attached.
+let justPickedId = null;
+let recordedTimer = null;
+
+function filteredOptions() {
+  const q = $('filter-input').value.trim().toLowerCase();
+  return [...store.options]
+    .filter(o => o.name.toLowerCase().includes(q))
+    .sort((a, b) => a.name.localeCompare(b.name, undefined, { sensitivity: 'base' }));
 }
+
+// Brief "Recorded: X · Undo" confirmation after each pick.
+function showRecorded(option) {
+  clearTimeout(recordedTimer);
+  $('recorded').innerHTML =
+    `<span>Recorded: <strong>${esc(option.name)}</strong></span>
+     <button class="ghost" id="undo-pick">Undo</button>`;
+  $('recorded').hidden = false;
+  recordedTimer = setTimeout(hideRecorded, 6000);
+}
+function hideRecorded() {
+  clearTimeout(recordedTimer);
+  $('recorded').hidden = true;
+}
+
+function renderDecide() {
+  const hasOptions = store.options.length > 0;
+  const list = filteredOptions();
+  $('decide-empty').hidden = hasOptions;
+  $('filter-input').closest('.row').hidden = !hasOptions;
+  $('decide-nomatch').hidden = !hasOptions || list.length > 0;
+  $('decide-nomatch').textContent = `No options match “${$('filter-input').value.trim()}”.`;
+  $('decide-list').innerHTML = list.map(o => `
+    <li data-id="${o.id}"${o.id === justPickedId ? ' class="just-picked"' : ''}>
+      <span class="name">${esc(o.name)}</span>
+      <button class="primary" data-action="pick">Pick</button>
+    </li>`).join('');
+  justPickedId = null;
+}
+
+function pick(optionId) {
+  store.decisions.push({ optionId, at: new Date().toISOString() });
+  save();
+  justPickedId = optionId;
+  $('filter-input').value = '';
+  renderAll();
+  showRecorded(store.options.find(o => o.id === optionId));
+}
+
+$('filter-input').addEventListener('input', renderDecide);
+$('filter-input').addEventListener('keydown', e => {
+  // Enter picks the option when the filter narrows it down to exactly one.
+  if (e.key !== 'Enter') return;
+  const list = filteredOptions();
+  if (list.length === 1) pick(list[0].id);
+});
+
+$('decide-list').addEventListener('click', e => {
+  const btn = e.target.closest('button[data-action="pick"]');
+  if (btn) pick(btn.closest('li').dataset.id);
+});
+
+$('recorded').addEventListener('click', e => {
+  if (e.target.id !== 'undo-pick') return;
+  store.decisions.pop();
+  save();
+  hideRecorded();
+  renderAll();
+});
+// Leaving the page dismisses the note, so Undo can't act on stale state.
+addEventListener('hashchange', hideRecorded);
 
 function renderAll() {
   renderOptions();

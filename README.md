@@ -7,7 +7,7 @@ Observe what you vote to spend your time on. Get empirical measurements of your 
 1. Calendar page : View distribution of where you input a decision.
 2. Decision page : A page that gives you a LIST to pick a decision from.
     a. First filter by possible options.
-    b. Pick what to do for the next hour.
+    b. Pick what to do. Each pick is one raw decision, with no time span attached.
 
 3. Modify decision page: 
     a. Add button : to add a potential option.

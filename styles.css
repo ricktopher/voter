@@ -41,6 +41,7 @@
 }
 
 * { box-sizing: border-box; }
+[hidden] { display: none !important; }
 body {
   margin: 0;
   font: 15px/1.55 var(--sans);
@@ -89,7 +90,6 @@ nav a.active { background: var(--surface); color: var(--text); box-shadow: var(-
 
 /* ---------- Layout ---------- */
 main { max-width: 880px; margin: 0 auto; padding: 40px 20px 64px; }
-section[hidden] { display: none; }
 section { animation: fade .25s ease-out; }
 @keyframes fade { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: none; } }
 
@@ -127,7 +127,19 @@ h1 {
 .list .confirm { font-size: 13px; color: var(--danger); align-self: center; padding: 0 4px; }
 
 /* ---------- Controls ---------- */
-button, select, input[type=text] {
+.recorded {
+  display: flex; align-items: center; gap: 12px;
+  margin-bottom: 16px; padding: 10px 10px 10px 16px;
+  background: var(--accent-soft); color: var(--accent);
+  border-radius: 12px; font-size: 14px;
+  animation: fade .2s ease-out;
+}
+.recorded strong { color: var(--text); font-weight: 600; overflow-wrap: anywhere; }
+.recorded button { margin-left: auto; padding: 5px 12px; font-size: 13px; flex-shrink: 0; }
+.list li.just-picked { animation: picked .6s ease-out; }
+@keyframes picked { from { background: var(--accent-soft); border-color: var(--accent); } }
+
+button, select, input[type=text], input[type=search] {
   font: inherit; font-size: 14px;
   padding: 9px 14px;
   border: 1px solid var(--border);
@@ -144,8 +156,8 @@ button.ghost { border-color: transparent; background: transparent; color: var(--
 button.ghost:hover { background: var(--surface-2); color: var(--text); }
 button.ghost.danger:hover { color: var(--danger); }
 button.icon { width: 36px; height: 36px; padding: 0; font-size: 18px; line-height: 1; }
-input[type=text] { flex: 1 1 200px; min-width: 0; background: var(--surface-2); border-color: transparent; }
-input[type=text]::placeholder { color: var(--muted); }
+input[type=text], input[type=search] { flex: 1 1 200px; min-width: 0; background: var(--surface-2); border-color: transparent; }
+input::placeholder { color: var(--muted); }
 :is(button, select, input):focus-visible {
   outline: none;
   border-color: var(--accent);

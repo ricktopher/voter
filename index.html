@@ -28,14 +28,15 @@
   <!-- 1. Decision page -->
   <section id="decide">
     <h1>Decide</h1>
-    <p class="sub">What will you spend the next hour on?</p>
+    <p class="sub">What do you choose to do?</p>
     <div class="card">
+      <div class="recorded" id="recorded" role="status" hidden></div>
       <div class="row">
-        <input type="text" placeholder="Filter options…">
+        <input type="search" id="filter-input" placeholder="Filter options…" aria-label="Filter options" autocomplete="off">
       </div>
       <ul class="list" id="decide-list"></ul>
       <p class="empty" id="decide-empty">No options yet. Add some on the <a href="#modify">Options</a> tab.</p>
-      <p class="placeholder">Placeholder: filtering and picking not wired up yet.</p>
+      <p class="empty" id="decide-nomatch" hidden></p>
     </div>
   </section>
 
