@@ -124,13 +124,17 @@
   <!-- 3. Priority matrix -->
   <section id="matrix" hidden>
     <h1>Priorities</h1>
-    <p class="sub">Read each square as a sentence: “I would rather <em>column</em> than <em>row</em>.”</p>
+    <p class="sub">Read each circle as a sentence: “I would rather <em>column</em> than <em>row</em>.”</p>
     <div class="card">
       <div class="scroll-x">
         <table class="matrix" id="matrix-table"></table>
       </div>
+      <p class="tl-detail" id="matrix-detail" hidden></p>
       <p class="empty" id="matrix-empty">Nothing to compare yet. Make a few decisions first.</p>
-      <div class="scale" id="matrix-scale"><span>Rarely</span><span class="bar-grad"></span><span>Usually</span></div>
+      <div class="scale" id="matrix-scale">
+        <span class="key"><span class="circle-key hollow"></span>No data</span>
+        <span class="key">Rarely <span class="bar-grad"></span> Usually</span>
+      </div>
     </div>
   </section>
 
