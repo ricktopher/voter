@@ -1,0 +1,103 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Voter</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600&family=Inter:wght@400;500;600;700&display=swap">
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+<header>
+  <div class="bar">
+    <div class="logo"><span class="logo-mark">✓</span>voter</div>
+    <nav>
+      <a href="#calendar">Calendar</a>
+      <a href="#decide">Decide</a>
+      <a href="#modify">Options</a>
+      <a href="#matrix">Priorities</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+
+  <!-- 1. Calendar page -->
+  <section id="calendar">
+    <h1>Calendar</h1>
+    <p class="sub">Where your decisions landed over time.</p>
+    <div class="card">
+      <div class="cal-head">
+        <button class="ghost icon" aria-label="Previous month">‹</button>
+        <strong>November 2026</strong>
+        <button class="ghost icon" aria-label="Next month">›</button>
+      </div>
+      <div class="calendar" id="cal-grid"></div>
+      <div class="legend" id="cal-legend"></div>
+      <p class="placeholder">Placeholder: dots are fake sample data.</p>
+    </div>
+  </section>
+
+  <!-- 2. Decision page -->
+  <section id="decide" hidden>
+    <h1>Decide</h1>
+    <p class="sub">What will you spend the next hour on?</p>
+    <div class="card">
+      <div class="row">
+        <input type="text" placeholder="Filter options…">
+      </div>
+      <ul class="list">
+        <li><span class="name">Deep work on project</span><button class="primary">Pick</button></li>
+        <li><span class="name">Exercise</span><button class="primary">Pick</button></li>
+        <li><span class="name">Call a friend</span><button class="primary">Pick</button></li>
+        <li><span class="name">Read</span><button class="primary">Pick</button></li>
+      </ul>
+      <p class="placeholder">Placeholder: filtering and picking not wired up yet.</p>
+    </div>
+  </section>
+
+  <!-- 3. Modify decision page -->
+  <section id="modify" hidden>
+    <h1>Options</h1>
+    <p class="sub">Add, edit, or remove the options you choose between.</p>
+    <div class="card">
+      <div class="row">
+        <input type="text" placeholder="New option…">
+        <button class="primary">Add</button>
+        <select aria-label="Sort by">
+          <option>Sort: A–Z</option>
+          <option>Sort: Frequency ↑</option>
+          <option>Sort: Frequency ↓</option>
+        </select>
+      </div>
+      <ul class="list">
+        <li><span class="name">Call a friend</span><span class="row"><span class="count">3×</span><span class="actions"><button class="ghost">Edit</button><button class="ghost danger">Delete</button></span></span></li>
+        <li><span class="name">Deep work on project</span><span class="row"><span class="count">12×</span><span class="actions"><button class="ghost">Edit</button><button class="ghost danger">Delete</button></span></span></li>
+        <li><span class="name">Exercise</span><span class="row"><span class="count">7×</span><span class="actions"><button class="ghost">Edit</button><button class="ghost danger">Delete</button></span></span></li>
+        <li><span class="name">Read</span><span class="row"><span class="count">5×</span><span class="actions"><button class="ghost">Edit</button><button class="ghost danger">Delete</button></span></span></li>
+      </ul>
+      <p class="placeholder">Placeholder: buttons not wired up yet.</p>
+    </div>
+  </section>
+
+  <!-- 4. Priority matrix -->
+  <section id="matrix" hidden>
+    <h1>Priorities</h1>
+    <p class="sub">How often the row option was chosen over the column option.</p>
+    <div class="card">
+      <div class="scroll-x">
+        <table class="matrix" id="matrix-table"></table>
+      </div>
+      <div class="scale"><span>Rarely</span><span class="bar-grad"></span><span>Usually</span></div>
+      <p class="placeholder">Placeholder: values are fake sample data.</p>
+    </div>
+  </section>
+
+</main>
+
+<script src="app.js"></script>
+</body>
+</html>
