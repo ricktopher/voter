@@ -147,6 +147,27 @@ h1 {
 .list li .edit-input { flex: 1 1 160px; }
 .list .confirm { font-size: 13px; color: var(--danger); align-self: center; padding: 0 4px; }
 
+/* ---------- Back up & sync (Options page) ---------- */
+.sync-card { margin-top: 16px; }
+.sync-actions { display: flex; flex-wrap: wrap; justify-content: center; gap: 8px; }
+.import-review {
+  margin-top: 14px; padding: 12px 14px;
+  border: 1px solid var(--border); border-radius: 8px; background: var(--surface-2);
+  text-align: center;
+}
+.import-review p { margin: 0 0 10px; }
+.import-review .hint-muted { margin: 10px 0 0; font-size: 12px; color: var(--muted); }
+.sync-status { margin: 12px 0 0; font-size: 13px; color: var(--accent); text-align: center; }
+.sync-status.error { color: var(--danger); }
+/* A <label> styled like a button: it opens the hidden file picker */
+.button-like {
+  display: inline-flex; align-items: center;
+  padding: 9px 14px; font-size: 14px; font-weight: 500;
+  border: 1px solid var(--border); border-radius: 6px;
+  background: var(--surface); color: var(--text); cursor: pointer;
+}
+.button-like:hover { background: var(--surface-2); }
+
 /* ---------- Controls ---------- */
 .recorded {
   display: flex; align-items: center; justify-content: center; gap: 12px;

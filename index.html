@@ -119,6 +119,22 @@
       <ul class="list" id="options-list"></ul>
       <p class="empty" id="options-empty">No options yet. Add your first one above.</p>
     </div>
+
+    <!-- Back up & sync: move data between devices with a JSON file (see js/sync.js) -->
+    <div class="card sync-card">
+      <div class="day-head">
+        <h2>Back up &amp; sync</h2>
+        <span class="day-count">Export on one device, import on the other.</span>
+      </div>
+      <div class="sync-actions">
+        <button class="primary" id="export-btn" type="button">Export data</button>
+        <label class="button-like" for="import-file">Import file…</label>
+        <input type="file" id="import-file" accept=".json,application/json" hidden>
+      </div>
+      <!-- Shown after a file is chosen: what's in it, and Merge / Replace / Cancel -->
+      <div class="import-review" id="import-review" hidden></div>
+      <p class="sync-status" id="sync-status" role="status" hidden></p>
+    </div>
   </section>
 
   <!-- 3. Priority matrix -->
@@ -188,6 +204,7 @@
 <script src="js/timeline.js"></script>
 <script src="js/calendar.js"></script>
 <script src="js/priorities.js"></script>
+<script src="js/sync.js"></script>
 <script src="js/main.js"></script>
 </body>
 </html>
