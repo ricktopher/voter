@@ -2,7 +2,7 @@
  * sync.js — "Back up & sync" card on the Options page: export and import all data as JSON.
  *
  * Until there's a backend, this is how the phone and laptop share data:
- *   1. Export on device A  → saves voter-YYYY-MM-DD.json
+ *   1. Export on device A  → saves consciously-YYYY-MM-DD.json
  *   2. Move the file over (AirDrop, email, cloud drive, USB…)
  *   3. Import it on device B and choose Merge
  *   (Do the same in the other direction to bring both fully up to date.)
@@ -41,7 +41,7 @@ const plural = (n, word) => `${n} ${word}${n === 1 ? '' : 's'}`;
 /** Download all data as a JSON file named after today's date. */
 function exportData() {
   const payload = {
-    app: 'voter',
+    app: 'voter', // the app's original name; kept so older export files still import
     version: EXPORT_VERSION,
     exportedAt: new Date().toISOString(),
     data: {
@@ -57,7 +57,7 @@ function exportData() {
   const d = new Date();
   const pad = n => String(n).padStart(2, '0');
   a.href = url;
-  a.download = `voter-${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}.json`;
+  a.download = `consciously-${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}.json`;
   document.body.appendChild(a);
   a.click();
   a.remove();
@@ -75,10 +75,10 @@ function exportData() {
 function validateImport(json) {
   const data = json && json.app === 'voter' ? json.data : json;
   if (!data || !Array.isArray(data.options) || !Array.isArray(data.decisions)) {
-    throw new Error('This file doesn’t look like a Voter export.');
+    throw new Error('This file doesn’t look like a Consciously export.');
   }
   if (json.version > EXPORT_VERSION) {
-    throw new Error('This file was made by a newer version of Voter. Update the app on this device first.');
+    throw new Error('This file was made by a newer version of Consciously. Update the app on this device first.');
   }
   const options = data.options
     .filter(o => o && typeof o.id === 'string' && typeof o.name === 'string' && o.name.trim())

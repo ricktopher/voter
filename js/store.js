@@ -29,7 +29,7 @@
  */
 
 /** localStorage key. Bump the version if the data shape ever changes incompatibly. */
-const STORE_KEY = 'voter:v1';
+const STORE_KEY = 'voter:v1'; // keeps the app's original name: renaming it would hide existing saved data
 
 /**
  * Read the saved data, or start empty.

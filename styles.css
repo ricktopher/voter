@@ -23,29 +23,29 @@
   --sans: "DM Sans", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
   color-scheme: light;
 }
-@media (prefers-color-scheme: dark) {
-  :root {
-    --bg: #0d1220;
-    --surface: #141b2d;
-    --surface-2: #1c2438;
-    --text: #e6eaf2;
-    --muted: #8a94a8;
-    --border: #263049;
-    --accent: #6e8cff;
-    --accent-ink: #0a0f1d;
-    --accent-soft: #1c2a55;
-    --danger: #ff6b6b;
-    --c1: #6e8cff;
-    --c2: #ffb37a;
-    --c3: #3fd0bd;
-    --c4: #f07ccb;
-    --c5: #b98ef0;
-    --c6: #5fd39a;
-    --c7: #e0b33a;
-    --c8: #d68a5e;
-    --shadow: 0 1px 2px rgba(0, 0, 0, .4);
-    color-scheme: dark;
-  }
+/* Dark palette: currently OFF. The site is always light, even when the device is in dark mode.
+   To use it, add data-theme="dark" to <html> (e.g. from a future theme toggle). */
+:root[data-theme="dark"] {
+  --bg: #0d1220;
+  --surface: #141b2d;
+  --surface-2: #1c2438;
+  --text: #e6eaf2;
+  --muted: #8a94a8;
+  --border: #263049;
+  --accent: #6e8cff;
+  --accent-ink: #0a0f1d;
+  --accent-soft: #1c2a55;
+  --danger: #ff6b6b;
+  --c1: #6e8cff;
+  --c2: #ffb37a;
+  --c3: #3fd0bd;
+  --c4: #f07ccb;
+  --c5: #b98ef0;
+  --c6: #5fd39a;
+  --c7: #e0b33a;
+  --c8: #d68a5e;
+  --shadow: 0 1px 2px rgba(0, 0, 0, .4);
+  color-scheme: dark;
 }
 
 * { box-sizing: border-box; }
@@ -69,18 +69,20 @@ header {
 .bar {
   max-width: 880px; margin: 0 auto;
   padding: 14px 20px;
-  display: flex; align-items: center; justify-content: space-between; gap: 16px; flex-wrap: wrap;
+  display: flex; align-items: center; justify-content: center; gap: 12px 16px; flex-wrap: wrap;
 }
+/* App name, centred on its own row above the tabs */
 .logo {
-  display: flex; align-items: center; gap: 8px;
+  flex-basis: 100%; justify-content: center;
+  display: flex; align-items: center; gap: 9px;
   font-family: var(--display); font-weight: 700; font-size: 21px; letter-spacing: -0.04em;
   color: inherit; text-decoration: none;
 }
-.logo-mark { width: 26px; height: 26px; flex-shrink: 0; }
-.logo-mark .logo-bg   { fill: var(--accent); }
-.logo-mark .logo-slip { fill: var(--accent-soft); }
-.logo-mark .logo-box  { fill: var(--accent-ink); }
-.logo-mark .logo-slot { stroke: var(--accent); stroke-width: 1.6; stroke-linecap: round; }
+.logo-mark { width: 28px; height: 28px; flex-shrink: 0; }
+.logo-mark .logo-bg    { fill: var(--accent); }
+.logo-mark .logo-eye   { fill: var(--accent-ink); }
+.logo-mark .logo-iris  { fill: var(--accent); }
+.logo-mark .logo-glint { fill: var(--accent-ink); }
 /* Main tabs: a full-width row of four equal, bold buttons (icon + label) under the logo.
    Inactive tabs use full-strength text; the active one is solid accent colour. */
 nav {
@@ -207,7 +209,6 @@ button.small { padding: 4px 10px; font-size: 13px; }
 .shortlist .list { margin-top: 0; }
 .shortlist .list li { border-color: transparent; }
 .shortlist .list li .actions { align-items: center; }
-.hint { margin: 0; font-size: 14px; color: var(--accent); text-align: center; }
 .list.choose li { padding: 0; }
 .list.choose li.selected { border-color: var(--accent); background: var(--accent-soft); }
 .option-toggle {

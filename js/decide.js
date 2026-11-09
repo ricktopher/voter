@@ -112,7 +112,7 @@ function renderDecide() {
 
   // "Choosing between": the shortlisted options, each with ✕ (remove) and Pick.
   const chosen = shortlist.map(id => store.options.find(o => o.id === id));
-  $('shortlist-hint').hidden = chosen.length > 0;
+  $('shortlist').hidden = chosen.length === 0; // the box appears once something is shortlisted
   $('clear-shortlist').hidden = chosen.length === 0;
   $('shortlist-list').innerHTML = chosen.map(o => `
     <li data-id="${o.id}">
