@@ -19,7 +19,7 @@
  *
  * FILE FORMAT
  *   { app: "voter", version: 1, exportedAt: ISO time,
- *     data: { options, decisions, sort, calView } }   // same shape as `store`, see store.js
+ *     data: { options, decisions, sort, calView, matrixSort } }   // same shape as `store`, see store.js
  */
 
 /** Data parsed from the chosen file, waiting for Merge / Replace / Cancel. */
@@ -49,6 +49,7 @@ function exportData() {
       decisions: store.decisions,
       sort: store.sort,
       calView: store.calView,
+      matrixSort: store.matrixSort,
     },
   };
   const blob = new Blob([JSON.stringify(payload, null, 2)], { type: 'application/json' });
@@ -93,7 +94,7 @@ function validateImport(json) {
     }));
   return {
     options, decisions,
-    sort: data.sort, calView: data.calView,
+    sort: data.sort, calView: data.calView, matrixSort: data.matrixSort,
     exportedAt: json.exportedAt,
   };
 }
@@ -187,6 +188,7 @@ $('import-review').addEventListener('click', e => {
     store.decisions = incoming.decisions;
     if (incoming.sort) store.sort = incoming.sort;
     if (incoming.calView) store.calView = incoming.calView;
+    if (incoming.matrixSort) store.matrixSort = incoming.matrixSort;
     showSyncStatus(`Replaced with ${plural(incoming.options.length, 'option')} and ${plural(incoming.decisions.length, 'decision')}.`);
   } else {
     const { addedOptions, addedDecisions } = mergeImport(incoming);
@@ -201,6 +203,7 @@ $('import-review').addEventListener('click', e => {
   selectedPopAt = null;  // timeline.js
   save();
   $('sort-select').value = store.sort;
+  $('matrix-sort').value = store.matrixSort;
   renderAll();
 });
 

@@ -8,7 +8,7 @@
 <title>Consciously</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Roboto+Slab:wght@600;700&family=DM+Sans:opsz,wght@9..40,400;9..40,500;9..40,600;9..40,700&display=swap">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans:wght@400;500;600;700&display=swap">
 <link rel="stylesheet" href="styles.css">
 </head>
 <body>
@@ -147,8 +147,15 @@
   <!-- 3. Priority matrix -->
   <section id="matrix" hidden>
     <h1>Priorities</h1>
-    <p class="sub">Read each circle as a sentence: “I would rather <em>column</em> than <em>row</em>.”</p>
+    <p class="sub">Read each row as a sentence: “I would rather <em>row</em> than <em>column</em>.”</p>
     <div class="card">
+      <div class="matrix-tools" id="matrix-tools">
+        <select id="matrix-sort" aria-label="Sort rows and columns">
+          <option value="preferred">Sort: Most preferred</option>
+          <option value="picked">Sort: Most picked</option>
+          <option value="alpha">Sort: A–Z</option>
+        </select>
+      </div>
       <div class="scroll-x">
         <table class="matrix" id="matrix-table"></table>
       </div>

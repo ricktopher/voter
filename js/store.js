@@ -23,6 +23,7 @@
  *
  *   store.sort      — the chosen sort on the Options page: 'alpha' | 'freq-asc' | 'freq-desc'
  *   store.calView   — how the Calendar shows a selected day: 'list' | 'timeline'
+ *   store.matrixSort — Priorities row/column order: 'preferred' | 'picked' | 'alpha'
  *
  * WORKFLOW FOR CHANGING DATA
  *   1. modify `store` directly   2. call save()   3. call renderAll() (or a single render fn)
@@ -39,9 +40,9 @@ const STORE_KEY = 'voter:v1'; // keeps the app's original name: renaming it woul
 function load() {
   try {
     const data = JSON.parse(localStorage.getItem(STORE_KEY));
-    if (data && Array.isArray(data.options)) return { decisions: [], sort: 'alpha', calView: 'list', ...data };
+    if (data && Array.isArray(data.options)) return { decisions: [], sort: 'alpha', calView: 'list', matrixSort: 'preferred', ...data };
   } catch {}
-  return { options: [], decisions: [], sort: 'alpha', calView: 'list' };
+  return { options: [], decisions: [], sort: 'alpha', calView: 'list', matrixSort: 'preferred' };
 }
 
 /** The single source of truth for the whole app. */

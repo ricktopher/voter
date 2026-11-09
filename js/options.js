@@ -7,10 +7,16 @@
  * To change what's shown: update the state, then call renderOptions() again.
  *
  * Each row can be in one of three modes:
- *   normal     name · pick count · [Edit] [Delete]
+ *   normal     name · pick count · [✎ rename] [🗑 delete]   (icon buttons; names show as tooltips)
  *   editing    text box · [Save] [Cancel]          (when id === editingId)
  *   confirming "Delete?" · [Yes] [No]              (when id === confirmingId)
  */
+
+/** Row icons (24×24 line drawings, coloured by the button's text colour). Their names show as tooltips. */
+const ICON_EDIT = `<svg class="btn-icon" viewBox="0 0 24 24" aria-hidden="true">
+  <path d="M4 20h4L19 9a2.8 2.8 0 0 0-4-4L4 16z"/><path d="M13.5 6.5l4 4"/></svg>`;
+const ICON_DELETE = `<svg class="btn-icon" viewBox="0 0 24 24" aria-hidden="true">
+  <path d="M4 7h16M10 7V4.5h4V7M6.5 7l1 13h9l1-13M10 11v5.5M14 11v5.5"/></svg>`;
 
 /** Id of the option currently being renamed, or null. */
 let editingId = null;
@@ -60,8 +66,10 @@ function renderOptions() {
         <span class="row">
           <span class="count">${n}×</span>
           <span class="actions">
-            <button class="ghost" data-action="edit">Edit</button>
-            <button class="ghost danger" data-action="delete">Delete</button>
+            <button class="ghost icon-btn" data-action="edit"
+                    title="Rename" aria-label="Rename ${esc(o.name)}">${ICON_EDIT}</button>
+            <button class="ghost danger icon-btn" data-action="delete"
+                    title="Delete" aria-label="Delete ${esc(o.name)}">${ICON_DELETE}</button>
           </span>
         </span>
       </li>`;

@@ -2,7 +2,7 @@
  * priorities.js — the Priorities page: a heatmap of head-to-head preferences.
  *
  * HOW TO READ IT
- * Each circle is a sentence: "I would rather <column> than <row>", filled by how often
+ * Each circle is a sentence: "I would rather <row> than <column>", filled by how often
  * that was true. Darker = more often. A hollow circle means those two have never been
  * shortlisted together. Tap a circle to see the exact numbers.
  *
@@ -19,7 +19,7 @@
  * from a shortlist of one) are ignored here, but still count on the other pages.
  */
 
-/** The tapped circle, as "columnId:rowId", or null. Its numbers show under the table. */
+/** The tapped circle, as "ratherId:thanId" (row option : column option), or null. Its numbers show under the table. */
 let matrixSelected = null;
 
 /**
@@ -45,48 +45,70 @@ function pairwise() {
   return { opts, picks: beat };
 }
 
+/**
+ * Order of the options (as indices into `opts`) for both rows and columns, following
+ * the Sort menu (store.matrixSort). Rows and columns always share one order, so the
+ * diagonal stays a straight line.
+ *   preferred  head-to-head win rate: wins ÷ (wins + losses) across every comparison.
+ *              The option you choose most often when it's on a shortlist comes first.
+ *              Options never compared go last. Ties → more comparisons, then A–Z.
+ *   picked     total times picked (ties A–Z)
+ *   alpha      A–Z
+ */
+function matrixOrder(opts, picks) {
+  const idx = opts.map((_, i) => i);
+  const name = (a, b) => byName(opts[a], opts[b]);
+  if (store.matrixSort === 'alpha') return idx.sort(name);
+  if (store.matrixSort === 'picked') {
+    return idx.sort((a, b) => timesPicked(opts[b].id) - timesPicked(opts[a].id) || name(a, b));
+  }
+  const wins = i => picks[i].reduce((s, x) => s + x, 0);        // times i beat anything
+  const losses = i => picks.reduce((s, row) => s + row[i], 0);  // times anything beat i
+  const games = i => wins(i) + losses(i);
+  const rate = i => (games(i) ? wins(i) / games(i) : -1);       // -1 = never compared → last
+  return idx.sort((a, b) => rate(b) - rate(a) || games(b) - games(a) || name(a, b));
+}
+
 /** Rebuild the matrix table (or the "nothing to compare" message). */
 function renderMatrix() {
   const table = $('matrix-table');
   const { opts, picks } = pairwise();
   const total = i => picks[i].reduce((s, x) => s + x, 0); // all head-to-head wins for option i
 
-  // Order rows and columns the same way: most picked overall first (ties A–Z),
-  // so the strongest options sit top-left.
-  const order = opts.map((_, i) => i)
-    .sort((a, b) => timesPicked(opts[b].id) - timesPicked(opts[a].id) ||
-                    byName(opts[a], opts[b]));
+  const order = matrixOrder(opts, picks);
 
   // Without any head-to-heads there's nothing to draw. Explain why instead.
   const hasData = opts.length >= 2 && order.some(i => total(i) > 0);
   $('matrix-empty').hidden = hasData;
   $('matrix-scale').hidden = !hasData;
   $('matrix-detail').hidden = !hasData;
+  $('matrix-tools').hidden = !hasData;
   $('matrix-empty').textContent = opts.length < 2
     ? 'Add at least two options to compare them.'
     : 'Nothing to compare yet. On the Decide page, shortlist two or more options and pick one.';
   if (!hasData) { table.innerHTML = ''; return; }
 
-  // Two header rows: "I would rather…" spanning the columns, then the column names
-  // (with "than…" in the corner above the row names).
+  // Two header rows: "than…" spanning the columns, then the column names
+  // (with "I would rather ↓" in the corner, pointing down at the row names).
   let html =
-    `<tr><th></th><th class="axis axis-col" colspan="${opts.length}">I would rather…</th></tr>` +
-    '<tr><th class="axis axis-row">than…</th>' +
+    `<tr><th></th><th class="axis axis-col" colspan="${opts.length}">than…</th></tr>` +
+    '<tr><th class="axis axis-row">I would rather ↓</th>' +
     // Column names are drawn at 45° (see .colh in styles.css) so every cell can be a square.
     order.map(c => `<th class="colh" title="${esc(opts[c].name)}"><span>${esc(opts[c].name)}</span></th>`).join('') + '</tr>';
 
-  // One row per option. Cell (row r, column c) = how often c beat r.
-  // One row per option. Cell (row r, column c) = how often c beat r, drawn as a circle:
-  // the fill gets darker the more often c won; a hollow circle means no data yet.
+  // One row per option. Each row reads left to right: "I would rather <row> than <column>".
+  // Cell (row r, column c) = how often r beat c, drawn as a circle: the fill gets darker
+  // the more often r won; a hollow circle means no data yet. With the strongest option
+  // first, the darkest circles gather in the top rows.
   // The exact numbers show in the tooltip, and in the line under the table when tapped.
   let selected = null; // the tapped cell's sentence, if it's still in the table
   order.forEach(r => {
-    const than = opts[r].name;
-    html += `<tr><th class="rowh">${esc(than)}</th>` + order.map(c => {
+    const rather = opts[r].name;
+    html += `<tr><th class="rowh">${esc(rather)}</th>` + order.map(c => {
       if (r === c) return '<td class="self"></td>'; // an option vs itself
-      const rather = opts[c].name;
-      const key = `${opts[c].id}:${opts[r].id}`;
-      const won = picks[c][r], lost = picks[r][c], n = won + lost;
+      const than = opts[c].name;
+      const key = `${opts[r].id}:${opts[c].id}`;
+      const won = picks[r][c], lost = picks[c][r], n = won + lost;
       const text = n
         ? `I would rather <strong>${esc(rather)}</strong> than <strong>${esc(than)}</strong>: ` +
           `${won} of ${n} time${n === 1 ? '' : 's'} (${Math.round(won / n * 100)}%)`
@@ -112,6 +134,14 @@ function renderMatrix() {
   const labelWidth = Math.min(160, longestChars * 7.5);
   table.style.setProperty('--colh-h', `${Math.ceil(labelWidth * 0.71) + 16}px`);
 }
+
+// Sort menu (saved, so the matrix keeps its order next visit).
+$('matrix-sort').value = store.matrixSort;
+$('matrix-sort').addEventListener('change', e => {
+  store.matrixSort = e.target.value;
+  save();
+  renderMatrix();
+});
 
 // Tapping a circle shows its sentence and numbers under the table; tapping it again clears it.
 $('matrix-table').addEventListener('click', e => {
