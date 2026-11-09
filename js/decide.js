@@ -18,6 +18,61 @@ let shortlist = [];
 let justPickedId = null;
 /** Timer that hides the "Recorded: X" note after a few seconds. */
 let recordedTimer = null;
+/**
+ * Has the user changed the "When" field? While false, the field follows the clock and
+ * a pick uses the exact current time. Once true, a pick uses the time they chose.
+ */
+let whenEdited = false;
+
+// ---- "When" field (time of the decision) ----
+
+/** Format a Date for a datetime-local input: "YYYY-MM-DDTHH:MM" in local time. */
+function toLocalInput(d) {
+  const pad = n => String(n).padStart(2, '0');
+  return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`;
+}
+
+/** Show or hide the When row, and keep it on the current time unless the user changed it. */
+function renderWhen() {
+  const input = $('when-input');
+  $('when-row').hidden = shortlist.length === 0;
+  input.max = toLocalInput(new Date());     // no picking a time in the future
+  if (!whenEdited) input.value = toLocalInput(new Date());
+  input.classList.toggle('edited', whenEdited);
+  $('when-now').hidden = !whenEdited;
+}
+
+/** Go back to "now" mode (after a pick, or when Now is pressed). */
+function resetWhen() {
+  whenEdited = false;
+  $('when-input').setCustomValidity('');
+  renderWhen();
+}
+
+/**
+ * The time to record for a pick: exactly now if the field is untouched, otherwise the
+ * chosen time. Returns null (and shows the browser's error bubble) if the chosen time is
+ * empty or in the future.
+ */
+function chosenTime() {
+  if (!whenEdited) return new Date();
+  const input = $('when-input');
+  const t = new Date(input.value); // datetime-local values parse as local time
+  const problem = isNaN(t) ? 'Pick a date and time.'
+    : t > new Date() ? 'A decision can’t be in the future.' : '';
+  input.setCustomValidity(problem);
+  if (problem) { input.reportValidity(); return null; }
+  return t;
+}
+
+$('when-input').addEventListener('input', () => {
+  whenEdited = true;
+  $('when-input').setCustomValidity('');
+  renderWhen();
+});
+$('when-now').addEventListener('click', resetWhen);
+// Keep the untouched field showing the current minute.
+setInterval(() => { if (!whenEdited) renderWhen(); }, 30 * 1000);
 
 /** All options whose name contains the filter text (case-insensitive), A–Z. */
 function filteredOptions() {
@@ -27,10 +82,17 @@ function filteredOptions() {
     .sort(byName);
 }
 
-/** Show the brief "Recorded: X" confirmation after a pick; it hides itself after 6 seconds. */
-function showRecorded(option) {
+/**
+ * Show the brief "Recorded: X" confirmation after a pick; it hides itself after 6 seconds.
+ * For a backdated pick, pass its time so the note says when it was recorded for.
+ */
+function showRecorded(option, at = null) {
   clearTimeout(recordedTimer); // restart the countdown if they pick again quickly
-  $('recorded').innerHTML = `<span>Recorded: <strong>${esc(option.name)}</strong></span>`;
+  const when = !at ? ''
+    : ` at ${at.toDateString() === new Date().toDateString()
+        ? fmtTime(at)
+        : at.toLocaleDateString(undefined, { day: 'numeric', month: 'short' }) + ' ' + fmtTime(at)}`;
+  $('recorded').innerHTML = `<span>Recorded: <strong>${esc(option.name)}</strong>${when}</span>`;
   $('recorded').hidden = false;
   recordedTimer = setTimeout(hideRecorded, 6000);
 }
@@ -78,6 +140,7 @@ function renderDecide() {
     </li>`;
   }).join('');
   justPickedId = null; // only flash once
+  renderWhen();
   renderUndo();
 }
 
@@ -105,15 +168,24 @@ function renderUndo() {
   $('undo-last').title = `Remove your last decision: ${option.name} at ${when}`;
 }
 
-/** Record a decision for `optionId`, together with the current shortlist, then reset for the next one. */
+/**
+ * Record a decision for `optionId` at the time in the When field, together with the
+ * current shortlist, then reset for the next one.
+ * Decisions are appended in the order they're recorded (not sorted by time), so Undo
+ * always removes the one just entered, even if it was backdated.
+ */
 function pick(optionId) {
-  store.decisions.push({ optionId, at: new Date().toISOString(), candidates: [...shortlist] });
+  const when = chosenTime();
+  if (!when) return; // invalid time: the error bubble is already showing
+  store.decisions.push({ optionId, at: when.toISOString(), candidates: [...shortlist] });
   save();
   justPickedId = optionId;
   shortlist = [];
   $('filter-input').value = '';
+  const backdated = whenEdited;
+  resetWhen();
   renderAll(); // counts, timeline and matrix all change
-  showRecorded(store.options.find(o => o.id === optionId));
+  showRecorded(store.options.find(o => o.id === optionId), backdated ? when : null);
 }
 
 // ---- Filter box ----
@@ -144,6 +216,7 @@ $('shortlist-list').addEventListener('click', e => {
 
 $('clear-shortlist').addEventListener('click', () => {
   shortlist = [];
+  resetWhen();
   renderDecide();
 });
 

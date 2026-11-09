@@ -193,6 +193,17 @@ button.small { padding: 4px 10px; font-size: 13px; }
   background: var(--accent-soft);
 }
 .shortlist .panel-label { color: var(--accent); }
+.when-row {
+  display: flex; flex-wrap: wrap; align-items: center; justify-content: center; gap: 8px;
+  margin-bottom: 10px;
+}
+.when-row label { font-size: 13px; font-weight: 600; color: var(--accent); }
+.when-row input {
+  font: inherit; font-size: 14px; padding: 6px 10px; min-width: 0;
+  border: 1px solid var(--border); border-radius: 6px;
+  background: var(--surface); color: var(--text);
+}
+.when-row input.edited { border-color: var(--accent); }
 .shortlist .list { margin-top: 0; }
 .shortlist .list li { border-color: transparent; }
 .shortlist .list li .actions { align-items: center; }

@@ -195,7 +195,7 @@ $('import-review').addEventListener('click', e => {
       : 'Already up to date: nothing new in that file.');
   }
 
-  // Keep decisions in time order: Undo removes the last one, and the timelines expect order.
+  // Sort by time after an import: entries from two devices have no shared "recorded" order.
   store.decisions.sort((a, b) => new Date(a.at) - new Date(b.at));
   shortlist = [];        // decide.js: may reference options that no longer exist
   selectedPopAt = null;  // timeline.js

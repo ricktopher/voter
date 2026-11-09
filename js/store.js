@@ -12,7 +12,9 @@
  *       name      what the user typed, e.g. "Exercise"
  *       createdAt ms timestamp when it was added (options from before this field existed lack it)
  *
- *   store.decisions — one entry per Pick, oldest first
+ *   store.decisions — one entry per Pick, in the order they were recorded (so Undo removes
+ *                     the latest entry). Usually also time order, but a backdated pick (the
+ *                     Decide page's "When" field) can be out of order, so sort by `at` when time matters.
  *     [{ optionId, at, candidates }]
  *       optionId    id of the option that was picked
  *       at          ISO timestamp of the pick

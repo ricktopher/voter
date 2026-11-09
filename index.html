@@ -71,6 +71,12 @@
             <span class="panel-label">Choosing between</span>
             <button class="ghost small" id="clear-shortlist" type="button" hidden>Clear</button>
           </div>
+          <!-- When the decision was made. Defaults to now; shown once the shortlist has options. -->
+          <div class="when-row" id="when-row" hidden>
+            <label for="when-input">When</label>
+            <input type="datetime-local" id="when-input">
+            <button class="ghost small" id="when-now" type="button" hidden>Now</button>
+          </div>
           <ul class="list" id="shortlist-list"></ul>
           <p class="hint" id="shortlist-hint">Tap the options below that are realistic right now, then pick one.</p>
         </div>
