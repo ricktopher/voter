@@ -75,38 +75,46 @@ header {
 .logo {
   flex-basis: 100%; justify-content: center;
   display: flex; align-items: center; gap: 9px;
-  font-family: var(--display); font-weight: 700; font-size: 21px; letter-spacing: -0.04em;
+  /* Heavy slab serif in capitals: square-ended letters give a steady, grounded feel */
+  font-family: "Roboto Slab", "Rockwell", Georgia, serif;
+  font-weight: 700; font-size: 24px; line-height: 1;
+  text-transform: uppercase; letter-spacing: 0.05em;
   color: inherit; text-decoration: none;
 }
 .logo-mark { width: 28px; height: 28px; flex-shrink: 0; }
 .logo-mark .logo-bg    { fill: var(--accent); }
-.logo-mark .logo-eye   { fill: var(--accent-ink); }
-.logo-mark .logo-iris  { fill: var(--accent); }
-.logo-mark .logo-glint { fill: var(--accent-ink); }
-/* Main tabs: a full-width row of four equal, bold buttons (icon + label) under the logo.
-   Inactive tabs use full-strength text; the active one is solid accent colour. */
+.logo-mark .logo-path  { fill: none; stroke: var(--accent-ink); stroke-width: 2.4; stroke-linecap: round; stroke-linejoin: round; }
+.logo-mark .logo-path.faint { opacity: .4; }    /* the path not taken */
+.logo-mark .logo-dot   { fill: var(--accent-ink); }  /* where the chosen path leads */
+/* Main tabs: minimal: icon + label, no boxes. Inactive tabs stay full-strength dark;
+   the active tab is accent-coloured with a thick underline on the header's divider line. */
 nav {
   flex-basis: 100%;   /* own row inside .bar */
-  display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px;
+  display: grid; grid-template-columns: repeat(4, 1fr);
+  margin-bottom: -14px; /* cancel .bar's bottom padding: tabs sit right on the header's divider line */
 }
 nav a {
-  display: flex; align-items: center; justify-content: center; gap: 10px;
-  min-height: 52px; padding: 10px 12px;
-  border: 2px solid var(--border); border-radius: 10px;
-  background: var(--surface);
+  position: relative;
+  display: flex; align-items: center; justify-content: center; gap: 8px;
+  padding: 12px 8px 14px;
   color: var(--text); text-decoration: none;
-  font: 700 16px/1 var(--display); letter-spacing: -0.02em;
-  transition: color .15s, background .15s, border-color .15s, transform .15s, box-shadow .15s;
+  font: 600 14px/1 var(--display); letter-spacing: 0.06em;
+  text-transform: uppercase; /* labels in capitals; the HTML keeps normal case */
+  transition: color .15s;
 }
-nav a:hover { border-color: var(--accent); color: var(--accent); }
-nav a.active {
-  background: var(--accent); border-color: var(--accent); color: var(--accent-ink);
-  box-shadow: 0 6px 16px -6px color-mix(in srgb, var(--accent) 70%, transparent);
-  transform: translateY(-1px);
+nav a::after {   /* the underline, hidden until hover/active */
+  content: ""; position: absolute; left: 20%; right: 20%; bottom: -1px;
+  height: 3px; border-radius: 3px 3px 0 0;
+  background: currentColor; transform: scaleX(0);
+  transition: transform .2s;
 }
+nav a:hover { color: var(--accent); }
+nav a:hover::after { transform: scaleX(.5); opacity: .4; }
+nav a.active { color: var(--accent); }
+nav a.active::after { transform: scaleX(1); opacity: 1; }
 .nav-icon {
-  width: 22px; height: 22px; flex-shrink: 0;
-  fill: none; stroke: currentColor; stroke-width: 2.2; stroke-linecap: round; stroke-linejoin: round;
+  width: 20px; height: 20px; flex-shrink: 0;
+  fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round;
 }
 .nav-icon .fill, .nav-icon circle { fill: currentColor; }
 
@@ -145,7 +153,7 @@ h1 {
 .empty a { color: var(--accent); }
 
 .form-error { margin: 8px 0 0; font-size: 13px; color: var(--danger); }
-.list li.editing { border-color: var(--accent); background: var(--surface); }
+.list li.editing, .list li.editing:hover { background: var(--surface); box-shadow: inset 0 0 0 2px var(--accent); }
 .list li .edit-input { flex: 1 1 160px; }
 .list .confirm { font-size: 13px; color: var(--danger); align-self: center; padding: 0 4px; }
 
@@ -207,26 +215,19 @@ button.small { padding: 4px 10px; font-size: 13px; }
 }
 .when-row input.edited { border-color: var(--accent); }
 .shortlist .list { margin-top: 0; }
-.shortlist .list li { border-color: transparent; }
+.shortlist .list li, .shortlist .list li:hover { background: var(--surface); }
 .shortlist .list li .actions { align-items: center; }
 .list.choose li { padding: 0; }
-.list.choose li.selected { border-color: var(--accent); background: var(--accent-soft); }
+.list.choose li.selected, .list.choose li.selected:hover { background: var(--accent); color: var(--accent-ink); }
 .option-toggle {
   width: 100%;
   display: flex; align-items: center; justify-content: space-between; gap: 10px;
   min-height: 40px; padding: 7px 10px 7px 12px;
-  border: 0; border-radius: 8px; background: transparent;
+  border: 0; border-radius: 8px; background: transparent; color: inherit;
   text-align: left; font-weight: 500;
 }
 .option-toggle:hover { background: transparent; }
-.option-toggle .mark {
-  flex-shrink: 0;
-  width: 20px; height: 20px; border-radius: 50%;
-  display: grid; place-items: center;
-  border: 1.5px solid var(--border); color: var(--muted);
-  font-size: 12px; line-height: 1;
-}
-.selected .option-toggle .mark { background: var(--accent); border-color: var(--accent); color: var(--accent-ink); }
+.option-toggle .mark { flex-shrink: 0; font-size: 15px; font-weight: 700; line-height: 1; }
 
 .undo-last {
   max-width: 100%; flex: 0 1 auto;
@@ -297,7 +298,7 @@ button.small { padding: 4px 10px; font-size: 13px; }
 .day-card .empty { margin-top: 8px; padding: 16px; }
 
 .list li.just-picked { animation: picked .6s ease-out; }
-@keyframes picked { from { background: var(--accent-soft); border-color: var(--accent); } }
+@keyframes picked { from { background: var(--accent-soft); } }
 
 button, select, input[type=text], input[type=search] {
   font: inherit; font-size: 14px;
@@ -316,7 +317,11 @@ button.ghost { border-color: transparent; background: transparent; color: var(--
 button.ghost:hover { background: var(--surface-2); color: var(--text); }
 button.ghost.danger:hover { color: var(--danger); }
 button.icon { width: 36px; height: 36px; padding: 0; font-size: 18px; line-height: 1; }
-input[type=text], input[type=search] { flex: 1 1 200px; min-width: 0; background: var(--surface-2); border-color: transparent; }
+/* Text boxes: white with a dark outline, so they never look like the grey option rows */
+input[type=text], input[type=search] {
+  flex: 1 1 200px; min-width: 0;
+  background: var(--surface); border: 1.5px solid var(--text);
+}
 input::placeholder { color: var(--muted); }
 :is(button, select, input):focus-visible {
   outline: none;
@@ -398,19 +403,19 @@ input::placeholder { color: var(--muted); }
 .list li {
   display: flex; justify-content: space-between; align-items: center; gap: 10px;
   min-height: 42px; padding: 4px 6px 4px 12px;
-  border: 1px solid var(--border);
-  border-radius: 8px;
-  background: var(--surface);
-  transition: border-color .15s, background .15s;
+  border: 0; border-radius: 8px;
+  background: var(--surface-2);   /* solid block, no border */
+  transition: background .15s, color .15s;
 }
-.list li:hover { border-color: color-mix(in srgb, var(--accent) 40%, var(--border)); background: var(--surface-2); }
+.list li:hover { background: color-mix(in srgb, var(--text) 7%, var(--surface-2)); }
 .list .name { min-width: 0; overflow-wrap: anywhere; font-weight: 500; }
 .list .count {
   color: var(--muted); font-size: 12px; font-weight: 600; white-space: nowrap;
-  background: var(--surface-2); padding: 2px 8px; border-radius: 6px;
+  background: var(--surface); padding: 2px 8px; border-radius: 6px;
 }
 .list .actions { display: flex; gap: 2px; }
 .list .actions button { padding: 4px 9px; font-size: 13px; }
+.list .actions button.ghost:hover { background: var(--surface); } /* visible on the grey rows */
 .list li button.primary { padding: 5px 14px; }
 
 /* ---------- Priority matrix ---------- */
@@ -471,8 +476,8 @@ table.matrix td.self { background: radial-gradient(circle, var(--border) 2px, tr
 @media (max-width: 600px) {
   .bar { padding: 10px 16px; gap: 10px; }
   /* Phone: same top row, but icon above label so four tabs fit side by side. */
-  nav { gap: 6px; }
-  nav a { flex-direction: column; gap: 5px; min-height: 60px; padding: 8px 2px; font-size: 13px; }
+  nav { margin-bottom: -10px; }
+  nav a { flex-direction: column; gap: 5px; padding: 8px 2px 11px; font-size: 12px; letter-spacing: 0.04em; }
   main { padding: 24px 16px 48px; }
   h1 { font-size: 28px; }
   .sub { margin-bottom: 20px; font-size: 15px; }

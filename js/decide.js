@@ -124,7 +124,7 @@ function renderDecide() {
     </li>`).join('');
 
   // "All options": every option matching the filter. Tapping a row toggles it on the
-  // shortlist; shortlisted rows are highlighted and show ✓ instead of +.
+  // shortlist; shortlisted rows turn solid blue with a ✓; others show just the name.
   const list = filteredOptions();
   $('decide-nomatch').hidden = list.length > 0;
   $('decide-nomatch').textContent = `No options match “${$('filter-input').value.trim()}”.`;
@@ -135,7 +135,7 @@ function renderDecide() {
     <li data-id="${o.id}"${cls ? ` class="${cls}"` : ''}>
       <button class="option-toggle" data-action="toggle" aria-pressed="${on}">
         <span class="name">${esc(o.name)}</span>
-        <span class="mark">${on ? '✓' : '+'}</span>
+        <span class="mark">${on ? '✓' : ''}</span>
       </button>
     </li>`;
   }).join('');
